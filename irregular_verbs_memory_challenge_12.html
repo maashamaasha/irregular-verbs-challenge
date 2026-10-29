@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light" />
+  <meta name="theme-color" content="#f7f9ff" />
+  <meta name="description" content="Irregular Verbs Memory Challenge — интерактивный тренажёр на 12 неправильных глаголов: запоминание, порядок форм, изменяющиеся гласные." />
+  <title>Irregular Verbs — Memory Challenge | merry_mary_eng</title>
+  <style>
+    :root {
+      --ink: #253450;
+      --muted: #74819b;
+      --blue: #397cb8;
+      --line: #dce5f2;
+      --lav: #eeeafa;
+      --peach: #fff0e3;
+      --mint: #e7f4ef;
+      --sky: #e8f4ff;
+      --paper: #ffffff;
+      --success: #317b64;
+      --error: #b84b5e;
+    }
+    * { box-sizing: border-box; }
+    html { min-height: 100%; }
+    body {
+      min-height: 100vh; margin: 0; color: var(--ink);
+      font-family: "Trebuchet MS", "Segoe UI", Arial, sans-serif;
+      background-color: #f7f9ff;
+      background-image: linear-gradient(rgba(115,160,204,.07) 1px,transparent 1px), linear-gradient(90deg,rgba(115,160,204,.07) 1px,transparent 1px);
+      background-size: 27px 27px;
+      -webkit-tap-highlight-color: transparent;
+    }
+    button,input { font: inherit; }
+    button { cursor:pointer; }
+    button:disabled { cursor:not-allowed; opacity:.55; }
+    button:focus-visible, [role="button"]:focus-visible, input:focus-visible { outline:3px solid #5c93e4; outline-offset:3px; }
+    .shell { width: min(1040px, calc(100% - 32px)); margin: 28px auto 45px; }
+    .header {
+      position:relative; overflow:hidden;
+      padding: 34px 40px 30px;
+      border-radius: 27px 27px 0 0;
+      background: linear-gradient(117deg,#e7f3ff 0%,#faf3ed 57%,#edebfc 100%);
+      border:1px solid var(--line); border-bottom:none;
+    }
+    .header::before,.header::after {content:"";position:absolute;border:2px solid rgba(125,152,203,.18);width:185px;height:185px;border-radius:50%;right:-48px;top:-98px;pointer-events:none}
+    .header::after {width:140px;height:140px;right:38px;top:82px;border-color:rgba(204,164,164,.14)}
+    .eyebrow {display:inline-flex;gap:9px;align-items:center;text-transform:uppercase;letter-spacing:1.6px;font-size:11px;font-weight:800;color:#54769e}
+    .eyebrow i{width:8px;height:8px;border-radius:50%;background:#6eb8a7;display:inline-block}
+    h1 {position:relative;margin: 12px 0 6px;font-size:clamp(27px,4.4vw,44px);line-height:1.16;letter-spacing:-1.6px;max-width:660px}
+    h1 em {font-style:normal;color:#397cb8}
+    .signature {position:relative;color:#657a98;font-size:12px;letter-spacing:.7px;font-weight:800;width:max-content;margin:0 0 12px 1px;padding-bottom:4px;border-bottom:2px solid #9dbfdf;}
+    .subtitle {max-width:620px;color:#536781;font-size:14px;line-height:1.65;margin:10px 0 0}
+    .header-art {position:absolute;right:55px;top:52px;display:flex;align-items:center;justify-content:center;transform:rotate(8deg);font-size:44px;width:111px;height:111px;background:#fffefa;border:7px solid rgba(255,255,255,.84);border-radius:26px;box-shadow:0 12px 29px #aebfd25c;user-select:none}
+    .header-art span{transform:rotate(-8deg)}
+    .panel {background:rgba(255,255,255,.95);padding:28px 40px 38px;border:1px solid var(--line);border-radius:0 0 27px 27px;box-shadow:0 20px 48px rgba(74,105,144,.10)}
+    .topline {display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+    .tiny {text-transform:uppercase;letter-spacing:1.5px;font-size:11px;font-weight:800;color:#73829a}
+    .restart {border:1px solid #d9e4f0;border-radius:11px;background:white;padding:9px 14px;color:#63758f;font-size:12px;font-weight:800}
+    .restart:hover {background:#f4f8fc}
+    .group-track {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:15px 0 21px}
+    .group-step {background:#f4f6fb;border:1px solid #e6ebf4;border-radius:11px;padding:9px 11px;display:flex;align-items:center;justify-content:center;gap:8px;color:#9aa5b5;font-size:11px;font-weight:800}
+    .group-step.active {background:#e9f3ff;border-color:#a9caef;color:#336d9c}
+    .group-step.done {background:#e8f5ed;border-color:#b7dac8;color:#347e63}
+    .group-step b {font-size:15px}
+    .divider {height:1px;background:#e9eef6;margin:0 0 25px}
+    .phase-track {display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:17px}
+    .phase-step {border-radius:30px;padding:8px 12px;background:#f5f6f9;color:#929aa8;text-transform:uppercase;letter-spacing:.7px;font-size:10px;font-weight:900}
+    .phase-step.current {color:#356ea8;background:#e4f1ff}
+    .phase-step.finished {color:#377b63;background:#e7f5ee}
+    .arrow {color:#aeb8c7;font-size:17px}
+    .screen-title {margin:0;font-size:clamp(21px,3.4vw,30px);letter-spacing:-.65px;line-height:1.2}
+    .screen-lead {margin:11px 0 20px;color:#62718a;font-size:14px;line-height:1.6;max-width:780px}
+    .tag {display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:9px;background:#fff2de;color:#987247;font-size:11px;font-weight:800;margin-bottom:12px}
+    .word-count {margin-left:auto;color:#8b95a8;font-size:12px;font-weight:800}
+    .card-grid {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:22px}
+    .study-card {position:relative;border:1px solid #e3eaf3;border-radius:17px;padding:17px 11px 13px;text-align:center;background:#fff;box-shadow:0 6px 15px rgba(110,140,177,.055);min-width:0}
+    .study-card:nth-child(6n+1){background:#edf6ff}.study-card:nth-child(5n+2){background:#f3f0ff}.study-card:nth-child(5n+3){background:#fff4e9}.study-card:nth-child(5n+4){background:#edfaf3}.study-card:nth-child(5n+5){background:#fff1f2}
+    .study-index {display:block;font-size:10px;font-weight:900;color:#8b99a9;margin-bottom:12px;letter-spacing:.8px}
+    .study-word {font-size:19px;font-weight:900;line-height:1.5;overflow-wrap:anywhere}
+    .study-v2 {font-weight:800;font-size:16px;color:#446887;line-height:1.5;overflow-wrap:anywhere}
+    .study-v3 {font-weight:800;font-size:16px;color:#56786e;line-height:1.5;overflow-wrap:anywhere}
+    .translation {font-size:12px;color:#718198;line-height:1.45;margin-top:13px;min-height:35px}
+    .legend {display:flex;justify-content:center;gap:22px;flex-wrap:wrap;margin:2px 0 16px;font-size:11px;color:#7a8aa1;font-weight:800}
+    .legend span strong {color:#3e6688}
+    .actions {display:flex;flex-wrap:wrap;gap:11px;justify-content:space-between;align-items:center;margin-top:22px}
+    .btn {border:0;border-radius:13px;background:#4486c0;color:#fff;padding:14px 20px;font-weight:900;font-size:14px;box-shadow:0 6px 13px rgba(71,137,192,.18);transition:background .2s,transform .15s;min-height:45px}
+    .btn:hover:not(:disabled){background:#306fa8;transform:translateY(-1px)}
+    .btn.secondary {background:#f2f5fa;color:#59718a;box-shadow:none;border:1px solid #e2e8f0}
+    .btn.secondary:hover:not(:disabled){background:#e8edf6}
+    .btn.ghost {background:#fff;color:#5b7b9c;border:1px solid #dce6f1;box-shadow:none}
+    .mini-meta {font-size:12px;color:#8091a8;font-weight:700}
+    .exercise-top {display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+    .word-chip {display:inline-flex;background:#f0ebff;border:1px solid #e0d7ff;color:#6656a2;border-radius:14px;padding:10px 16px;font-weight:900;font-size:21px}
+    .separator-dot {color:#b1beca}
+    .meaning-chip {color:#7e879a;font-size:13px}
+    .dropzone-title {margin:18px 0 11px;color:#5d7189;font-weight:900;font-size:12px;text-transform:uppercase;letter-spacing:1px}
+    .drop-grid {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+    .drop-slot {background:#f6f9fd;border:2px dashed #bdd2ea;border-radius:16px;min-height:122px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:10px;padding:9px;cursor:pointer;transition:background .2s, border .2s}
+    .drop-slot:hover {background:#eef5ff}
+    .drop-slot.is-over {background:#e4f1ff;border-color:#4385c7}
+    .drop-slot.is-wrong {border-color:#d698a0;background:#fff7f7}
+    .drop-slot.is-right {border-color:#93cbb0;background:#f0faf5}
+    .slot-label {color:#7791ac;text-transform:uppercase;font-size:11px;font-weight:900;letter-spacing:.9px}
+    .slot-placeholder {color:#9faabd;font-size:14px}
+    .bank {background:#fbfcff;border:1px solid #e6edf5;border-radius:15px;padding:13px 13px 16px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+    .bank:empty {min-height:65px}
+    .bank-label {grid-column:1/-1;color:#8490a4;text-transform:uppercase;letter-spacing:.8px;font-size:10px;font-weight:900}
+    .tile {width:100%;border:1px solid #a9c6ea;border-radius:12px;background:white;padding:13px 7px;color:#385f88;font-weight:900;font-size:clamp(15px,2.5vw,21px);line-height:1.25;box-shadow:0 3px 8px rgba(92,135,173,.06);overflow-wrap:anywhere;min-height:50px;touch-action:manipulation}
+    .tile:hover:not(:disabled){border-color:#5a9dd5;background:#f2f8ff}
+    .tile.selected {background:#e0f0ff;border-color:#4387bc;box-shadow:0 0 0 3px rgba(72,142,198,.14)}
+    .tile.placed {max-width:100%;font-size:clamp(14px,2.7vw,20px);padding:10px 6px}
+    .feedback {display:flex;align-items:flex-start;gap:9px;border-radius:12px;padding:12px 14px;margin-top:17px;line-height:1.45;font-size:13px;font-weight:700}
+    .feedback.success {background:#e9f7ee;color:#33785c}
+    .feedback.error {background:#fff0f0;color:#ab4d59}
+    .feedback.info {background:#edf4ff;color:#526e99}
+    .spell-panel {display:grid;gap:11px;margin-top:23px}
+    .spell-row {display:flex;align-items:center;gap:16px;background:#fbfcff;border:1px solid #e4ecf5;border-radius:17px;padding:13px 18px;min-width:0}
+    .spell-kind {min-width:52px;font-size:11px;font-weight:900;letter-spacing:.9px;text-transform:uppercase;color:#5c8bb1}
+    .letters {display:flex;flex-wrap:wrap;align-items:center;gap:2px;min-width:0}
+    .letter-static,.letter-missing {display:inline-flex;justify-content:center;align-items:center;min-width:24px;height:39px;text-align:center;font-size:clamp(18px,3.2vw,25px);font-weight:900;color:#34516f}
+    .letter-static.punct {min-width:11px;color:#9bafc5}
+    .letter-static.space {min-width:10px}
+    .letter-missing {width:34px;border-radius:8px;text-align:center;border:1.5px solid #a7c7e7;background:#eaf4ff;color:#275a8c;text-transform:lowercase;outline:none;padding:0 2px;box-shadow:inset 0 -3px 0 #c4ddf1}
+    .letter-missing.correct {background:#e8f8ef;border-color:#6fb390;box-shadow:inset 0 -3px 0 #a8dac1}
+    .letter-missing.incorrect {background:#fff0f1;border-color:#d78996;box-shadow:inset 0 -3px 0 #f0c8cc}
+    .tip {background:#f4f5ff;border:1px solid #e8e8fa;border-radius:13px;padding:14px 16px;font-size:13px;color:#687798;line-height:1.6;margin-top:20px}
+    .celebrate {background:linear-gradient(130deg,#e8f5ff 0%,#fdf7eb 52%,#e9f8ed 100%);padding:29px;border:1px solid #dfeaf1;border-radius:19px;text-align:center}
+    .celebrate .emoji {font-size:43px;margin-bottom:9px}
+    .celebrate h2 {font-size:29px;margin:0 0 10px}
+    .celebrate p {color:#708198;line-height:1.6;margin:0}
+    .summary {display:flex;gap:15px;justify-content:center;flex-wrap:wrap;margin:20px 0 15px}
+    .summary-item {background:white;border:1px solid #e1eaf2;padding:16px 23px;border-radius:15px;text-align:center;min-width:145px}
+    .summary-value {font-size:28px;font-weight:900;color:#397fbb}
+    .summary-label {font-size:11px;color:#7e90a6;font-weight:800;margin-top:3px}
+    .review-list {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;text-align:left;margin:20px 0 0}
+    .review-item {padding:10px 11px;border:1px solid #e9eef5;border-radius:10px;background:white;font-size:12px;display:flex;justify-content:space-between;gap:4px;color:#667b91;font-weight:800}
+    .review-item span {color:#5f9c82;white-space:nowrap}
+    .review-item.needs-review span {color:#bc8458}
+    .recall-entry {border:1.5px solid #a7c7e7;background:#f1f7ff;border-radius:12px;padding:13px 15px;width:100%;color:#264b75;min-width:0;font-size:19px;font-weight:850;letter-spacing:.6px;text-transform:lowercase}
+    .recall-hint {font-size:13px;color:#69839e;line-height:1.5}
+    .recall-label{color:#6183a4;font-size:11px;font-weight:900;letter-spacing:1px;margin:0 0 7px}
+    .recall-grid {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:16px}
+    .recall-box {padding:15px;border-radius:16px;border:1px solid #e1eaf3;background:#fbfcff}
+    .recall-entry.correct {background:#e8f8ef;border-color:#6fb390}
+    .recall-entry.incorrect {background:#fff0f1;border-color:#d78996}
+    .footnote {font-size:12px;color:#8392a7;text-align:center;margin-top:24px;line-height:1.5}
+    @media (max-width:760px){
+      .shell{width:min(100% - 18px,620px);margin:9px auto 23px}
+      .header{padding:26px 22px 22px;border-radius:19px 19px 0 0}
+      .header-art{right:23px;top:25px;transform:rotate(9deg) scale(.72);transform-origin:top right;opacity:.78}
+      h1{max-width:75%;font-size:clamp(25px,6vw,36px)}
+      .panel{padding:22px 17px 28px;border-radius:0 0 19px 19px}
+      .group-step{font-size:10px;padding:9px 3px;gap:4px}
+      .group-step b{font-size:13px}
+      .card-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+      .study-card{padding:14px 9px}
+      
+      .translation{min-height:auto}
+      .tile{font-size:15px}
+      .drop-slot{min-height:108px}
+      .drop-grid,.bank{gap:7px}
+      .phase-step{font-size:9px;padding:7px 9px}
+      .arrow{display:none}
+      .spell-row{padding:12px 9px;gap:5px}
+      .spell-kind{min-width:28px;font-size:10px}
+      .letter-static,.letter-missing{min-width:19px;height:34px;font-size:20px}
+      .letter-missing{width:27px}
+      .review-list{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .recall-grid{grid-template-columns:1fr}
+    }
+    @media(max-width:390px){
+      .header-art{display:none}
+      h1{max-width:100%}
+      .btn{font-size:12px;padding:12px 14px}
+      .spell-kind{min-width:24px}
+      .letter-static,.letter-missing{min-width:17px;font-size:18px}
+      .letter-missing{width:24px}
+    }
+    @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+  </style>
+</head>
+<body>
+<div class="shell">
+  <header class="header">
+    <div class="eyebrow"><i></i> English practice · interactive game</div>
+    <h1>Irregular Verbs<br><em>Memory Challenge</em></h1>
+    <div class="signature">merry_mary_eng</div>
+    <p class="subtitle">12 неправильных глаголов · 3 смысловые группы · 3 этапа: запомни, расставь формы, восстанови изменяющиеся гласные.</p>
+    <div class="header-art" aria-hidden="true"><span>✏️📘</span></div>
+  </header>
+  <main class="panel">
+    <div class="topline"><div class="tiny" id="sectionLabel">Группа 1 из 3</div><button class="restart" id="restart" type="button">↺ Начать заново</button></div>
+    <div class="group-track" id="groupTrack" aria-label="Прогресс по группам"></div>
+    <div class="divider"></div>
+    <div id="app" aria-live="polite"></div>
+    <div class="footnote">Без интернета и регистрации. В пропусках скрыты только изменяющиеся гласные в V2 и V3 — согласные остаются на месте. Карточки можно перетаскивать мышью или расставлять нажатием.</div>
+  </main>
+</div>
+<script>
+"use strict";
+// Учебная логика: пробелы только на гласных, и только в изменяющихся сочетаниях.
+// Во всех 12 глаголах V2 и V3 маскируют только гласные, отличающиеся от V1.
+const groups=[
+  {name:"Движение и путешествия",subtitle:"Movement & Travel",verbs:[
+    {forms:["ride","rode","ridden"],ru:"ездить верхом / на велосипеде",masks:["ride","r_de","r_dden"]},
+    {forms:["drive","drove","driven"],ru:"водить автомобиль",masks:["drive","dr_ve","dr_ven"]},
+    {forms:["fly","flew","flown"],ru:"летать",masks:["fly","fl_w","fl_wn"]},
+    {forms:["swim","swam","swum"],ru:"плавать",masks:["swim","sw_m","sw_m"]}
+  ]},
+  {name:"Звуки и творчество",subtitle:"Sounds & Creativity",verbs:[
+    {forms:["speak","spoke","spoken"],ru:"говорить",masks:["speak","sp_ke","sp_ken"]},
+    {forms:["sing","sang","sung"],ru:"петь",masks:["sing","s_ng","s_ng"]},
+    {forms:["ring","rang","rung"],ru:"звонить",masks:["ring","r_ng","r_ng"]},
+    {forms:["draw","drew","drawn"],ru:"рисовать",masks:["draw","dr_w","dr_wn"]}
+  ]},
+  {name:"Повседневные действия",subtitle:"Everyday Actions",verbs:[
+    {forms:["begin","began","begun"],ru:"начинать",masks:["begin","beg_n","beg_n"]},
+    {forms:["break","broke","broken"],ru:"ломать",masks:["break","br_ke","br_ken"]},
+    {forms:["drink","drank","drunk"],ru:"пить",masks:["drink","dr_nk","dr_nk"]},
+    {forms:["forget","forgot","forgotten"],ru:"забывать",masks:["forget","forg_t","forg_tten"]}
+  ]}
+];
+const GROUP_SIZE=4;
+const TOTAL=12;
+// Sanity checks prevent accidental spelling errors and consonant gaps.
+for(const g of groups)for(const v of g.verbs){
+  if(v.masks){for(let f=0;f<3;f++){
+    const form=v.forms[f],pattern=v.masks[f];
+    if(form.length!==pattern.length)throw Error(`Mask length mismatch for ${form}: ${pattern}`);
+    for(let i=0;i<form.length;i++){
+      if(pattern[i]==='_'){if(!/[aeiou]/.test(form[i]))throw Error(`Non-vowel gap in ${form}`)}
+      else if(pattern[i]!==form[i])throw Error(`Mask spelling error in ${form}`);
+    }
+  }}
+}
+const app=document.getElementById('app');
+const groupTrack=document.getElementById('groupTrack');
+const sectionLabel=document.getElementById('sectionLabel');
+const state={group:0,word:0,phase:'study',order:null,spell:null,results:Array.from({length:TOTAL},()=>({order:null,spell:null}))};
+function esc(value){return String(value).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));}
+function shuffle(source){const a=[...source];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function currentVerb(){return groups[state.group].verbs[state.word]}
+function resultIndex(){return state.group*GROUP_SIZE+state.word}
+function renderChrome(){
+  sectionLabel.textContent=state.phase==='end'?'Все группы завершены':`Группа ${state.group+1} из 3 · ${groups[state.group].name}`;
+  groupTrack.innerHTML=groups.map((g,i)=>`<div class="group-step ${i<state.group||state.phase==='end'?'done':i===state.group?'active':''}" title="${esc(g.name)}"><b>${i<state.group||state.phase==='end'?'✓':String(i+1).padStart(2,'0')}</b><span>${esc(g.subtitle)}</span></div>`).join('');
+}
+function phaseTrack(current){const steps=['Запоминание','Порядок форм','Пропущенные гласные'];return `<nav class="phase-track" aria-label="Этапы тренировки">${steps.map((t,i)=>`${i?'<span class="arrow" aria-hidden="true">→</span>':''}<span class="phase-step ${i<current?'finished':i===current?'current':''}">${i<current?'✓ ':''}${t}</span>`).join('')}</nav>`}
+function setPhase(phase){state.phase=phase;state.word=0;if(phase==='order')initOrder();if(phase==='spell')initSpell();render();window.scrollTo({top:0,behavior:'smooth'})}
+function reset(){state.group=0;state.word=0;state.phase='study';state.order=null;state.spell=null;state.results=Array.from({length:TOTAL},()=>({order:null,spell:null}));render();window.scrollTo({top:0,behavior:'smooth'})}
+document.getElementById('restart').addEventListener('click',()=>{if(window.confirm('Начать игру заново? Прогресс этой попытки сбросится.'))reset()});
+function render(){renderChrome();if(state.phase==='study')renderStudy();else if(state.phase==='order')renderOrder();else if(state.phase==='spell')renderSpell();else if(state.phase==='groupDone')renderGroupDone();else renderEnd()}
+function renderStudy(){
+  const start=state.group*GROUP_SIZE+1;
+  app.innerHTML=`${phaseTrack(0)}<div class="tag">👀 STAGE 1 — LOOK & REMEMBER</div><h2 class="screen-title">${esc(groups[state.group].name)}</h2><p class="screen-lead">Запомни три формы четырёх неправильных глаголов. Затем ты расставишь карточки по порядку и восстановишь изменяющиеся гласные.</p><div class="legend"><span><strong>V1</strong> — Infinitive</span><span><strong>V2</strong> — Past Simple</span><span><strong>V3</strong> — Past Participle</span></div><div class="card-grid">${groups[state.group].verbs.map((v,i)=>`<article class="study-card"><span class="study-index">VERB ${String(start+i).padStart(2,'0')}</span><div class="study-word">${esc(v.forms[0])}</div><div class="study-v2">${esc(v.forms[1])}</div><div class="study-v3">${esc(v.forms[2])}</div><div class="translation">${esc(v.ru)}</div></article>`).join('')}</div><div class="actions"><span class="mini-meta">4 глагола · группа ${state.group+1} из 3</span><button class="btn" id="nextStage">Я запомнил(а) → К практике</button></div>`;
+  document.getElementById('nextStage').onclick=()=>setPhase('order');
+}
+function initOrder(){
+  const verb=currentVerb();let tiles=shuffle(verb.forms.map((label,id)=>({label,id})));
+  for(let tries=0;tries<12&&tiles.every((t,i)=>t.label===verb.forms[i]);tries++)tiles=shuffle(tiles);
+  state.order={tiles,slots:[null,null,null],selected:null,attempts:0,solved:false,revealed:false,lastWrong:false};
+}
+function tileById(id){return state.order.tiles.find(t=>t.id===id)}
+function placeTile(id,slotIndex){
+  const task=state.order;if(task.solved||task.revealed)return;
+  id=Number(id);if(![0,1,2].includes(id)||![0,1,2].includes(slotIndex))return;
+  const from=task.slots.indexOf(id),other=task.slots[slotIndex];
+  if(from>=0)task.slots[from]=other===null?null:other;
+  task.slots[slotIndex]=id;task.selected=null;task.lastWrong=false;renderOrder();
+}
+function selectTile(id){const task=state.order;if(task.solved||task.revealed)return;task.selected=task.selected===id?null:id;task.lastWrong=false;renderOrder()}
+function resetOrderSlots(){state.order.slots=[null,null,null];state.order.selected=null;state.order.lastWrong=false;renderOrder()}
+function checkOrder(){
+  const task=state.order;if(task.slots.some(v=>v===null))return;
+  const correct=task.slots.every((id,i)=>tileById(id).label===currentVerb().forms[i]);
+  if(state.results[resultIndex()].order===null)state.results[resultIndex()].order=correct;
+  task.attempts++;task.solved=correct;task.lastWrong=!correct;renderOrder();
+}
+function revealOrder(){if(state.results[resultIndex()].order===null)state.results[resultIndex()].order=false;state.order.revealed=true;renderOrder()}
+function nextOrder(){if(state.word<GROUP_SIZE-1){state.word++;initOrder();render()}else setPhase('spell')}
+function renderOrder(){
+  const v=currentVerb(),t=state.order;
+  const errors=t.lastWrong?t.slots.map((id,i)=>id!==null&&tileById(id).label!==v.forms[i]):[false,false,false];
+  const item=(obj,placed=false)=>`<button type="button" class="tile ${placed?'placed':''} ${t.selected===obj.id?'selected':''}" data-tile="${obj.id}" draggable="${!t.solved&&!t.revealed}" aria-pressed="${t.selected===obj.id}" aria-label="Карточка ${esc(obj.label)}">${esc(obj.label)}</button>`;
+  const slots=t.slots.map((id,i)=>`<div class="drop-slot ${errors[i]?'is-wrong':t.solved?'is-right':''}" data-slot="${i}" role="button" tabindex="0" aria-label="Ячейка ${['V1','V2','V3'][i]}, ${id===null?'пустая':esc(tileById(id).label)}"><div class="slot-label">${['V1','V2','V3'][i]}</div>${id===null?'<span class="slot-placeholder">Помести сюда</span>':item(tileById(id),true)}</div>`).join('');
+  const bank=t.tiles.filter(x=>!t.slots.includes(x.id));
+  let feedback='';
+  if(t.solved)feedback='<div class="feedback success">✓ Отлично! Все три формы стоят в правильном порядке.</div>';
+  else if(t.revealed)feedback=`<div class="feedback info">Правильный порядок: <b>${v.forms.map(esc).join(' — ')}</b></div>`;
+  else if(t.lastWrong)feedback='<div class="feedback error">Порядок пока неверный. Проверь выделенные ячейки и попробуй снова.</div>';
+  else if(t.selected!==null)feedback='<div class="feedback info">Нажми на ячейку V1, V2 или V3, чтобы поставить выбранную карточку.</div>';
+  app.innerHTML=`${phaseTrack(1)}<div class="tag">🧩 STAGE 2 — PUT IN ORDER</div><div class="exercise-top"><h2 class="screen-title">Расставь формы по порядку</h2><span class="word-count">Глагол ${state.word+1} / ${GROUP_SIZE}</span></div><p class="screen-lead">Перетащи карточки в нужные ячейки или нажми на карточку, а затем на ячейку. <strong>V1 → V2 → V3</strong>.</p><div class="exercise-top"><span class="word-chip">${esc(v.ru)}</span><span class="separator-dot">•</span><span class="meaning-chip">Вспомни английские формы</span></div><div class="dropzone-title">Правильный порядок</div><div class="drop-grid">${slots}</div><div class="dropzone-title">Перемешанные карточки</div><div class="bank" id="bank"><div class="bank-label">${bank.length?'Выбери или перетащи карточку':'Все карточки расставлены'}</div>${bank.map(x=>item(x)).join('')}</div><div aria-live="polite">${feedback}</div><div class="actions"><button class="btn secondary" id="resetOrder" ${t.solved||t.revealed?'disabled':''}>↺ Убрать карточки</button><div style="display:flex;gap:9px;flex-wrap:wrap;justify-content:flex-end">${t.attempts>=2&&!t.solved&&!t.revealed?'<button class="btn ghost" id="revealOrder">Показать ответ</button>':''}<button class="btn" id="checkOrder" ${t.slots.some(x=>x===null)||t.solved||t.revealed?'disabled':''} ${t.solved||t.revealed?'hidden':''}>Проверить ✓</button>${t.solved||t.revealed?'<button class="btn" id="nextOrder">Следующий глагол →</button>':''}</div></div>`;
+  app.querySelectorAll('[data-tile]').forEach(tile=>{
+    const id=Number(tile.dataset.tile);
+    tile.addEventListener('click',e=>{e.stopPropagation();selectTile(id)});
+    tile.addEventListener('dragstart',e=>{if(t.solved||t.revealed){e.preventDefault();return;}e.dataTransfer.setData('text/plain',String(id));e.dataTransfer.effectAllowed='move'});
+  });
+  app.querySelectorAll('[data-slot]').forEach(slot=>{
+    const idx=Number(slot.dataset.slot);
+    const activate=()=>{if(t.solved||t.revealed)return;if(t.selected!==null){placeTile(t.selected,idx)}else if(t.slots[idx]!==null){selectTile(t.slots[idx])}};
+    slot.addEventListener('click',activate);
+    slot.addEventListener('keydown',e=>{if(e.target!==slot)return;if(e.key==='Enter'||e.key===' '){e.preventDefault();activate()}});
+    slot.addEventListener('dragover',e=>{if(t.solved||t.revealed)return;e.preventDefault();slot.classList.add('is-over')});
+    slot.addEventListener('dragleave',()=>slot.classList.remove('is-over'));
+    slot.addEventListener('drop',e=>{e.preventDefault();slot.classList.remove('is-over');const id=e.dataTransfer.getData('text/plain');if(id!=='')placeTile(Number(id),idx)});
+  });
+  document.getElementById('resetOrder').onclick=resetOrderSlots;
+  const check=document.getElementById('checkOrder');if(check)check.onclick=checkOrder;
+  const reveal=document.getElementById('revealOrder');if(reveal)reveal.onclick=revealOrder;
+  const next=document.getElementById('nextOrder');if(next)next.onclick=nextOrder;
+}
+function initSpell(){state.spell={answers:{},attempts:0,solved:false,revealed:false,lastResult:null,incomplete:false}}
+function spellKey(formIndex,charIndex){return `${formIndex}-${charIndex}`}
+function spellComplete(){
+  const t=state.spell,v=currentVerb();
+  if(!v.masks)return ['1','2'].every(i=>Boolean((t.answers['word-'+i]||'').trim()));
+  return v.masks.every((pattern,f)=>[...pattern].every((ch,i)=>ch!=='_'||Boolean(t.answers[spellKey(f,i)])));
+}
+function checkSpell(){
+  const t=state.spell,v=currentVerb();
+  if(!spellComplete()){t.incomplete=true;t.lastResult=null;renderSpell(false);return}
+  let pass;
+  if(!v.masks){pass=[1,2].every(f=>String(t.answers['word-'+f]||'').trim().toLowerCase().replace(/\s+/g,' ')===v.forms[f]);}
+  else{pass=v.masks.every((pattern,f)=>[...pattern].every((ch,i)=>ch!=='_'||String(t.answers[spellKey(f,i)]||'').toLowerCase()===v.forms[f][i]))}
+  if(state.results[resultIndex()].spell===null)state.results[resultIndex()].spell=pass;
+  t.attempts++;t.lastResult=pass;t.incomplete=false;t.solved=pass;renderSpell(false);
+}
+function revealSpell(){if(state.results[resultIndex()].spell===null)state.results[resultIndex()].spell=false;state.spell.revealed=true;renderSpell(false)}
+function nextSpell(){if(state.word<GROUP_SIZE-1){state.word++;initSpell();render()}else{state.phase='groupDone';render()}window.scrollTo({top:0,behavior:'smooth'})}
+function renderSpell(autoFocus=true){
+  const v=currentVerb(),t=state.spell,isRecall=!v.masks;
+  let fields;
+  if(isRecall){
+    fields=`<div class="spell-panel"><div class="spell-row"><span class="spell-kind">V1</span><div class="letters"><span class="letter-static">${esc(v.forms[0])}</span></div></div></div><div class="recall-grid">${[1,2].map(f=>{const key='word-'+f,val=t.answers[key]||'',isWrong=t.lastResult===false&&val.trim().toLowerCase()!==v.forms[f];return `<div class="recall-box"><div class="recall-label">${f===1?'V2 — PAST SIMPLE':'V3 — PAST PARTICIPLE'}</div><input class="recall-entry ${t.lastResult!==null?(isWrong?'incorrect':'correct'):''}" data-word="${f}" type="text" autocomplete="off" spellcheck="false" autocapitalize="off" placeholder="Напиши форму" value="${esc(val)}" ${t.solved||t.revealed?'disabled':''}/></div>`}).join('')}</div>`;
+  }else{
+    fields=`<div class="spell-panel">${v.forms.map((form,f)=>{
+      const pattern=v.masks[f],letters=[...pattern].map((ch,i)=>{
+        if(ch==='_'){
+          const key=spellKey(f,i),value=t.answers[key]||'',wrong=t.lastResult===false&&value!==form[i];
+          return `<input class="letter-missing ${t.lastResult!==null?(wrong?'incorrect':'correct'):''}" data-key="${key}" type="text" inputmode="text" autocomplete="off" spellcheck="false" autocapitalize="off" maxlength="1" value="${esc(value)}" aria-label="${['Infinitive','Past Simple','Past Participle'][f]}, пропущенная гласная, позиция ${i+1}" ${t.solved||t.revealed?'disabled':''}/>`;
+        }
+        return `<span class="letter-static ${ch===' '?'space':!/[a-z]/i.test(ch)?'punct':''}">${ch===' '?'&nbsp;':esc(ch)}</span>`;
+      }).join('');
+      return `<div class="spell-row"><span class="spell-kind">${['V1','V2','V3'][f]}</span><div class="letters">${letters}</div></div>`;
+    }).join('')}</div>`;
+  }
+  let feedback='';
+  if(t.solved)feedback='<div class="feedback success">✓ Отлично! Все формы написаны правильно.</div>';
+  else if(t.revealed)feedback=`<div class="feedback info">Правильные формы: <b>${v.forms.map(esc).join(' — ')}</b></div>`;
+  else if(t.incomplete)feedback='<div class="feedback info">Заполни все поля, затем нажми «Проверить».</div>';
+  else if(t.lastResult===false)feedback='<div class="feedback error">Пока есть неточности. Исправь подсвеченные поля и попробуй ещё раз.</div>';
+  const instructions=isRecall?'В этих формах нет гласных, которые заменяются другими. Поэтому мы <strong>не убираем согласные и не создаём искусственных пропусков</strong>: напиши V2 и V3 самостоятельно.':'Во второй и третьей формах скрыты <strong>только гласные</strong> из изменившихся гласных сочетаний. Согласные буквы всегда остаются видимыми.';
+  app.innerHTML=`${phaseTrack(2)}<div class="tag">✍️ STAGE 3 — VOWEL CHALLENGE</div><div class="exercise-top"><h2 class="screen-title">${isRecall?'Вспомни две формы':'Восстанови изменяющиеся гласные'}</h2><span class="word-count">Глагол ${state.word+1} / ${GROUP_SIZE}</span></div><p class="screen-lead">${instructions}</p><div class="exercise-top"><span class="word-chip">${esc(v.forms[0])}</span><span class="separator-dot">•</span><span class="meaning-chip">${esc(v.ru)}</span></div>${fields}<div aria-live="polite">${feedback}</div><div class="tip">💡 <strong>Подсказка:</strong> ${isRecall?'если новая гласная не появляется, запоминай глагол целиком. У повторяющихся форм V2 и V3 ответы одинаковы.':'вводи по одной английской гласной в голубое поле. Например, d_d → did. Согласные в заданиях никогда не пропадают.'}</div><div class="actions"><span class="mini-meta">Проверка без учёта заглавных и строчных букв.</span><div style="display:flex;gap:9px;flex-wrap:wrap;justify-content:flex-end">${t.attempts>=2&&!t.solved&&!t.revealed?'<button class="btn ghost" id="revealSpell">Показать ответ</button>':''}${!t.solved&&!t.revealed?'<button class="btn" id="checkSpell">Проверить ✓</button>':'<button class="btn" id="nextSpell">Следующий глагол →</button>'}</div></div>`;
+  if(isRecall){
+    app.querySelectorAll('[data-word]').forEach(input=>{
+      input.addEventListener('input',()=>{t.answers['word-'+input.dataset.word]=input.value;t.incomplete=false;t.lastResult=null;input.classList.remove('correct','incorrect')});
+      input.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();checkSpell()}});
+    });
+  }else{
+    const inputs=[...app.querySelectorAll('.letter-missing')];
+    inputs.forEach((input,idx)=>{
+      input.addEventListener('input',()=>{const val=input.value.toLowerCase().replace(/[^aeiou]/g,'').slice(-1);input.value=val;t.answers[input.dataset.key]=val;t.lastResult=null;t.incomplete=false;input.classList.remove('correct','incorrect');if(val&&idx<inputs.length-1)inputs[idx+1].focus()});
+      input.addEventListener('keydown',e=>{if(e.key==='Backspace'&&!input.value&&idx>0)inputs[idx-1].focus();if(e.key==='Enter'){e.preventDefault();checkSpell()}});
+      input.addEventListener('paste',e=>{const pasted=(e.clipboardData||window.clipboardData).getData('text').toLowerCase().replace(/[^aeiou]/g,'');if(pasted.length>1){e.preventDefault();[...pasted].forEach((ch,j)=>{if(inputs[idx+j]){inputs[idx+j].value=ch;t.answers[inputs[idx+j].dataset.key]=ch}});inputs[Math.min(idx+pasted.length,inputs.length-1)].focus()}});
+    });
+  }
+  const check=document.getElementById('checkSpell');if(check)check.onclick=checkSpell;
+  const reveal=document.getElementById('revealSpell');if(reveal)reveal.onclick=revealSpell;
+  const next=document.getElementById('nextSpell');if(next)next.onclick=nextSpell;
+  if(autoFocus){const first=app.querySelector('input:not(:disabled)');if(first)first.focus({preventScroll:true})}
+}
+function renderGroupDone(){
+  const groupStats=state.results.slice(state.group*GROUP_SIZE,state.group*GROUP_SIZE+GROUP_SIZE),firstTry=groupStats.reduce((n,r)=>n+Number(r.order===true)+Number(r.spell===true),0);
+  app.innerHTML=`<div class="celebrate"><div class="emoji">🌟</div><h2>Группа ${state.group+1} пройдена!</h2><p>${esc(groups[state.group].name)} · Все четыре глагола отработаны на трёх этапах.</p><div class="summary"><div class="summary-item"><div class="summary-value">4/4</div><div class="summary-label">Глаголов отработано</div></div><div class="summary-item"><div class="summary-value">${firstTry}/8</div><div class="summary-label">Заданий с первой попытки</div></div></div><button class="btn" id="nextGroup">${state.group===2?'Посмотреть результаты':'Перейти к группе '+(state.group+2)} →</button></div>`;
+  document.getElementById('nextGroup').onclick=()=>{if(state.group===2)state.phase='end';else{state.group++;state.phase='study';state.word=0}render();window.scrollTo({top:0,behavior:'smooth'})};
+}
+function renderEnd(){
+  const firstTry=state.results.reduce((n,r)=>n+Number(r.order===true)+Number(r.spell===true),0);
+  const review=state.results.map((r,i)=>({name:groups[Math.floor(i/GROUP_SIZE)].verbs[i%GROUP_SIZE].forms[0],score:Number(r.order===true)+Number(r.spell===true)}));
+  const attention=review.filter(x=>x.score<2);
+  app.innerHTML=`<div class="celebrate"><div class="emoji">🏆</div><h2>Brilliant work!</h2><p>Ты закончил(а) три смысловые группы неправильных глаголов!<br>Повтори слова, которые вызвали трудности.</p><div class="summary"><div class="summary-item"><div class="summary-value">12/12</div><div class="summary-label">Глаголов пройдено</div></div><div class="summary-item"><div class="summary-value">${firstTry}/24</div><div class="summary-label">Заданий с первой попытки</div></div><div class="summary-item"><div class="summary-value">${attention.length}</div><div class="summary-label">Глаголов для повторения</div></div></div><p style="font-weight:900;color:#526e8c">Итоги по глаголам: ✓ — с первой попытки</p><div class="review-list">${review.map(r=>`<div class="review-item ${r.score<2?'needs-review':''}">${esc(r.name)} <span>${r.score===2?'✓ ✓':r.score===1?'✓ ·':'· ·'}</span></div>`).join('')}</div><div class="actions" style="justify-content:center"><button class="btn" id="playAgain">↺ Пройти ещё раз</button></div></div>`;
+  document.getElementById('playAgain').onclick=reset;
+}
+render();
+</script>
+</body>
+</html>
